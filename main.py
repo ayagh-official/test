@@ -31,7 +31,7 @@ async def ping():
 def read_file_as_image(data) -> np.ndarray:
     image = np.array(Image.open(BytesIO(data)))
     # Resize the image to (150,150)
-    image = tf.image.resize(image, (150, 150))
+    image = tf.image.resize(image, (224, 224))
     return image
 
 
