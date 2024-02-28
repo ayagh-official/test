@@ -5,7 +5,7 @@ import numpy as np
 from io import BytesIO
 from PIL import Image
 import tensorflow as tf
-
+import cv2
 
 app = FastAPI()
 
@@ -20,9 +20,8 @@ app.add_middleware(
 
 model = tf.keras.models.load_model("./VGG.h5")
 
-
 # Class names for the different skin diseases
-CLASS_NAMES = ['yes_tumor','no_tumor']
+CLASS_NAMES = ['no','yes']
 
 @app.get("/ping")
 async def ping():
@@ -37,24 +36,24 @@ def read_file_as_image(data) -> np.ndarray:
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
-    image = read_file_as_image(await file.read())
-    img_batch = np.expand_dims(image, 0)
-
-    predictions = model.predict(img_batch)
-
+    imaget = read_file_as_image(await file.read())
+    
+    predictions = model.predict(np.expand_dims(imaget, axis=0))
     predicted_class_index = np.argmax(predictions[0])
-    predicted_class = CLASS_NAMES[predicted_class_index]
-    confidence = float(predictions[0][predicted_class_index])
+    
+    return CLASS_NAMES[predicted_class_index]
 
-    def truncate(n, decimals=0):
-        multiplier = 10**decimals
-        return int(n * multiplier) / multiplier
 
-    return {
-        'class': predicted_class,
-        'confidence': truncate(confidence,2)
-    }
+    # # Replace this with the actual path to the image file
+    # file_path = "./image(1).jpg"
+    # img = Image.open(file_path)
+    # opencvImage = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+    # img = cv2.resize(opencvImage, (150, 150))
+    # img = img.reshape(1, 150, 150, 3)
+    # p = model.predict(img)
+    # p = np.argmax(p, axis=1)[0]
 
+    # return {"prediction": p}
 
 if __name__ == "__main__":
     uvicorn.run(app, host='0.0.0.0', port=8000)
