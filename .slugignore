@@ -1,0 +1,2 @@
+.heroku/python/lib/python3.12/site-packages/clang
+.heroku/python/lib/python3.12/site-packages/tensorflow/libtensorflow_cc.so.2
